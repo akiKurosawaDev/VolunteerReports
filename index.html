@@ -1,97 +1,106 @@
 <!DOCTYPE html>
 <html lang="ja">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>VolunteerReports</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
-        <link href="style.css" rel="stylesheet">
-        <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-    </head>
-    <body class="py-4">
-        <main id="app">
-            <template v-if="authorization.login">
-                <div class="container">
-                    <div class="row row-cols-3 mb-2">
-                        <div class="col text-end month"><button type="button" class="btn btn-light" v-on:click="onClickBack"><i
-                                    class="bi bi-chevron-left"></i></button></div>
-                        <div class="month">{{ year }}年{{ monthIndex + 1 }}月</div>
-                        <div class="col text-start month"><button type="button" class="btn btn-light" v-on:click="onClickNext"><i
-                                    class="bi bi-chevron-right"></i></button></div>
-                    </div>
-                    <template id="template_calender">
-                        <div class="row row-cols-1 mb-2">
-                            <div class="col">
-                                <table class="calender">
-                                    <thead>
-                                        <tr class="week">
-                                            <th class="wh">日</th>
-                                            <th class="wh">月</th>
-                                            <th class="wh">火</th>
-                                            <th class="wh">水</th>
-                                            <th class="wh">木</th>
-                                            <th class="wh">金</th>
-                                            <th class="wh">土</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr class="day" v-for="item in days">
-                                            <td class="cell" v-for="elem in item" v-bind:id="elem.day" v-on:click="onClickCell">
-                                                <div>{{ elem.day }}</div>
-                                                <div v-bind:class="elem.visible ? 'visible' : 'invisible'">
-                                                    <i class="bi bi-record-fill text-success"></i>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </template>
-                    <template v-if="detail.date != '0/0/0'">
-                        <div class="row row-cols-1 mb-2">
-                            <div class="col detail">{{ detail.date }}</div>
-                        </div>
-                        <div class="row row-cols-2 mb-2 reports border">
-                            <div class="col py-1 label">配布数</div>
-                            <div class="col py-1 border-bottom">{{ detail.distribute }}</div>
-                            <div class="col py-1 label">ビデオ再生</div>
-                            <div class="col py-1 border-bottom">{{ detail.video }}</div>
-                            <div class="col py-1 label">時間</div>
-                            <div class="col py-1 border-bottom">{{ timeString }}</div>
-                            <div class="col py-1 label">再訪問</div>
-                            <div class="col py-1 border-bottom">{{ detail.revisit }}</div>
-                            <div class="col py-1 label">研究</div>
-                            <div class="col">{{ detail.study }}</div>
-                        </div>
-                    </template>
-                </div>
-                <modal-dialog title="新規報告" v-bind:visible="dialog" v-on:from-close="onCloseDialog"
-                    v-on:from-send="onSendDialog"></modal-dialog>
-                <nav class="navbar fixed-bottom navbar-light bg-light">
-                    <div class="container-fluid justify-content-center">
-                        <button type="button" class="btn btn-outline-primary mx-3" v-on:click="onClickAdd"><i
-                                class="bi bi-plus-circle"></i> 新規</button>
-                        <button type="button" class="btn btn-outline-success mx-3"><i class="bi bi-pen"></i> 編集</button>
-                        <button type="button" class="btn btn-outline-danger mx-3"><i class="bi bi-x-circle"></i> 削除</button>
-                    </div>
-                </nav>
-            </template>
-            <template v-else>
-                <div class="container">
-                    <form>
-                        <label for="id_input" class="form-label">ユーザー名</label>
-                        <input type="text" class="form-control" id="id_input" v-model.lazy="authorization.id">
-                        <label for="password_input" class="form-label">パスワード</label>
-                        <input type="password" class="form-control" id="password_input" v-model.lazy="authorization.password">
-                        <button type="button" class="btn btn-primary" v-on:click="onClickLogin">ログイン</button>
-                    </form>
-                </div>
-            </template>
-       </main>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-        <script src="control.js" charset="UTF-8"></script>
-    </body>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VolunteerReports</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <link href="style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+
+<body class="py-4">
+    <main id="app">
+        <template v-if="authorization.login">
+            <div class="container">
+                <div class="row row-cols-3 mb-2">
+                    <div class="col text-end month"><button type="button" class="btn btn-light"
+                            v-on:click="onClickBack"><i class="bi bi-chevron-left"></i></button></div>
+                    <div class="month">{{ year }}年{{ monthIndex + 1 }}月</div>
+                    <div class="col text-start month"><button type="button" class="btn btn-light"
+                            v-on:click="onClickNext"><i class="bi bi-chevron-right"></i></button></div>
+                </div>
+                <template id="template_calender">
+                    <div class="row row-cols-1 mb-2">
+                        <div class="col">
+                            <table class="calender">
+                                <thead>
+                                    <tr class="week">
+                                        <th class="wh">日</th>
+                                        <th class="wh">月</th>
+                                        <th class="wh">火</th>
+                                        <th class="wh">水</th>
+                                        <th class="wh">木</th>
+                                        <th class="wh">金</th>
+                                        <th class="wh">土</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="day" v-for="item in days">
+                                        <td class="cell" v-for="elem in item" v-bind:id="elem.day"
+                                            v-on:click="onClickCell">
+                                            <div>{{ elem.day }}</div>
+                                            <div v-bind:class="elem.visible ? 'visible' : 'invisible'">
+                                                <i class="bi bi-record-fill text-success"></i>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </template>
+                <template v-if="detail.date != '0/0/0'">
+                    <div class="row row-cols-1 mb-2">
+                        <div class="col detail">{{ detail.date }}</div>
+                    </div>
+                    <div class="row row-cols-2 mb-2 reports border">
+                        <div class="col py-1 label">配布数</div>
+                        <div class="col py-1 border-bottom">{{ detail.distribute }}</div>
+                        <div class="col py-1 label">ビデオ再生</div>
+                        <div class="col py-1 border-bottom">{{ detail.video }}</div>
+                        <div class="col py-1 label">時間</div>
+                        <div class="col py-1 border-bottom">{{ timeString }}</div>
+                        <div class="col py-1 label">再訪問</div>
+                        <div class="col py-1 border-bottom">{{ detail.revisit }}</div>
+                        <div class="col py-1 label">研究</div>
+                        <div class="col">{{ detail.study }}</div>
+                    </div>
+                </template>
+            </div>
+            <modal-dialog title="新規報告" v-bind:visible="dialog" v-on:from-close="onCloseDialog"
+                v-on:from-send="onSendDialog"></modal-dialog>
+            <nav class="navbar fixed-bottom navbar-light bg-light">
+                <div class="container-fluid justify-content-center">
+                    <button type="button" class="btn btn-outline-primary mx-3" v-on:click="onClickAdd"><i
+                            class="bi bi-plus-circle"></i> 新規</button>
+                    <button type="button" class="btn btn-outline-success mx-3"><i class="bi bi-pen"></i> 編集</button>
+                    <button type="button" class="btn btn-outline-danger mx-3"><i class="bi bi-x-circle"></i> 削除</button>
+                </div>
+            </nav>
+        </template>
+        <template v-else>
+            <div class="container">
+                <form class="form-login border shadow rounded-3">
+                    <h1 class="h3 text-center fw-normal mb-4">ログインしてください</h1>
+                    <label for="id_input" class="form-label">ユーザー名</label>
+                    <input type="text" class="form-control mb-3" id="id_input" v-model.lazy="authorization.id">
+                    <label for="password_input" class="form-label">パスワード</label>
+                    <input type="password" class="form-control mb-3" id="password_input"
+                        v-model.lazy="authorization.password">
+                    <button type="button" class="btn btn-lg btn-primary w-100 mt-3" v-on:click="onClickLogin">ログイン</button>
+                </form>
+            </div>
+        </template>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <script src="control.js" charset="UTF-8"></script>
+</body>
+
 </html>

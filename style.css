@@ -6,6 +6,13 @@ main {
     padding-bottom: 50px;
     box-sizing: border-box;
 }
+
+.form-login {
+    max-width: 350px;
+    padding: 20px;
+    margin: auto;
+}
+
 .month {
     font-size: 20px;
     text-align: center;
