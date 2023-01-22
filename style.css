@@ -1,0 +1,81 @@
+body {
+    overflow-y: scroll;
+}
+
+main {
+    padding-bottom: 50px;
+    box-sizing: border-box;
+}
+.month {
+    font-size: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+.calender {
+    border-left: 1px black solid;
+    border-top: 1px black solid;
+    text-align: center;
+    max-width: 350px;
+    margin: 0 auto;
+}
+.week {
+    background-color: lightgrey;
+}
+.week :first-child, .day td:first-child {
+    color: red;
+}
+.week :last-child, .day td:last-child {
+    color: blue;
+}
+.wh {
+    width: 50px;
+    height: 25px;
+    border-right: 1px black solid;
+    border-bottom: 1px black solid;
+    cursor: pointer;
+}
+.cell {
+    color: black;
+    width: 50px;
+    height: 50px;
+    border-right: 1px black solid;
+    border-bottom: 1px black solid;
+    cursor: pointer;
+}
+
+.detail {
+    background-color: dimgray;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    max-width: 350px;
+    margin: 0 auto;
+}
+.label {
+    background-color: darkgray;
+    font-weight: bold;
+}
+.reports {
+    font-size: 14px;
+    text-align: left;
+    max-width: 350px;
+    margin: 0 auto;
+}
+.select {
+    background-color: tomato;
+    font-weight: bold;
+}
+
+.modal {
+    display: block;
+    background-color: rgba(0,0,0,0.5);
+}
+
+/* vueのtransitionを使わないなら不要 */
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .30s;
+  }
+.fade-enter, .fade-leave-to {
+    opacity: 0;
+}
