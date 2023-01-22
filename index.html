@@ -82,9 +82,9 @@
                 <div class="container">
                     <form>
                         <label for="id_input" class="form-label">ユーザー名</label>
-                        <input type="text" class="form-control" id="id_input" v-model="authorization.id">
+                        <input type="text" class="form-control" id="id_input" v-model.lazy="authorization.id">
                         <label for="password_input" class="form-label">パスワード</label>
-                        <input type="password" class="form-control" id="password_input" v-model="authorization.password">
+                        <input type="password" class="form-control" id="password_input" v-model.lazy="authorization.password">
                         <button type="button" class="btn btn-primary" v-on:click="onClickLogin">ログイン</button>
                     </form>
                 </div>

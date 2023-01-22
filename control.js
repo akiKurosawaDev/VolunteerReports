@@ -330,6 +330,7 @@ let vm = new Vue({
             handler: function() {
                 if (this.authorization.login)
                     this.createCalender();
+                console.log("authorization watch!");
             }, 
             deep: true
         }
