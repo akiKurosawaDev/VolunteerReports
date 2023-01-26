@@ -153,6 +153,125 @@ const modalDialog = {
     }
 };
 
+const calender = {
+    props: ['year', 'monthindex', 'regist'],
+    data() {
+        return {
+            days: []
+        }
+    },
+    computed: {
+        getYear() { return Number(this.year) },
+        getMonthIndex() { return Number(this.monthindex) },
+        getRegist() {
+            if (this.regist == null)
+                return [];
+            return this.regist;
+        }
+    },
+    template: `<table class="calender">
+        <thead>
+            <tr class="week">
+                <th class="wh">日</th>
+                <th class="wh">月</th>
+                <th class="wh">火</th>
+                <th class="wh">水</th>
+                <th class="wh">木</th>
+                <th class="wh">金</th>
+                <th class="wh">土</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="day" v-for="item in days">
+                <td class="cell" v-for="elem in item" v-bind:id="elem.day"
+                    v-on:click="onClickCell">
+                    <div>{{ elem.day }}</div>
+                    <div v-bind:class="elem.visible ? 'visible' : 'invisible'">
+                        <i class="bi bi-record-fill text-success"></i>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>`,
+    mounted() {
+        this.createCalender();
+    },
+    methods: {
+        createCalender() {
+            // プロパティから年と月を取得
+            const date = new Date(this.getYear, this.getMonthIndex);
+        
+            date.setDate(1); // 日付を月頭に設定
+            const first = date.getDay(); // 月頭の曜日を取得
+            date.setMonth(date.getMonth() + 1); // 翌月に設定
+            date.setDate(0); // 翌月の前の日（当月の末日）に日付を設定
+            const last = date.getDate(); // 月末の日付を取得
+        
+            let count = 1;
+            const weeks = new Array(6);
+            for (let i = 0; i < weeks.length; i++) {
+                
+                const days = new Array(7);
+                for (let j = 0; j < days.length; j++) {
+                    days[j] = { day: undefined, visible: false };
+                    if ((i == 0 && j >= first) || (i > 0 && count <= last)) {
+                        days[j].day = count++;
+                    }
+                }
+
+                weeks[i] = days;
+            }
+
+            this.selectClear();
+            this.days = weeks;
+        },
+        onClickCell(event) {
+            this.selectClear();
+        
+            const find = this.getRegist.find((elem) => {
+                const date = new Date(elem.date);
+                const select = Number(event.currentTarget.id);
+                return date.getDate() == select;
+            })
+            if (find !== undefined) {
+                this.$emit('from-select', new VolunteerReports(find.date, find.distribute, find.video, find.time, find.revisit, find.study));
+            } else {
+                this.$emit('from-select', new VolunteerReports('0/0/0', 0, 0, 0, 0, 0));
+            }
+        
+            event.currentTarget.classList.add('select');
+        },
+        /**
+        * セルの選択状態を解除します。
+        */
+        selectClear() {
+            const old = document.querySelector('.select');
+            old?.classList.remove('select');
+
+            this.$emit('from-select', new VolunteerReports('0/0/0', 0, 0, 0, 0, 0));
+        }
+    },
+    watch: {
+        monthindex: {
+            handler: function() {
+                this.createCalender();
+            }
+        },
+        regist: {
+            handler: function() {
+                const list = this.days.flat();
+                console.log(this.getRegist);
+                for (const item of this.getRegist) {
+                    const date = new Date(item.date);
+                    const find = list.find(day => Number(day.day) == date.getDate());
+                    find.visible = true;
+                }
+
+            }
+        }
+    }
+};
+
 let vm = new Vue({
     el: '#app',
     data() {
@@ -161,20 +280,18 @@ let vm = new Vue({
             year: 0,
             monthIndex: -1,
             load: [],
-            days: [],
             detail: new VolunteerReports('0/0/0', 0, 0, 0, 0, 0),
             dialog: false
         }
     },
-    created() {
+    mounted() {
         const now = new Date(Date.now() + ((new Date).getTimezoneOffset() + 9 * 60) * 60 * 1000);
         this.year = now.getFullYear();
         this.monthIndex = now.getMonth();
-
-        //this.createCalender();
     },
     components: {
-        'modal-dialog': modalDialog
+        'modal-dialog': modalDialog,
+        'my-calender' : calender
     },
     computed: {
         timeString() {
@@ -196,7 +313,6 @@ let vm = new Vue({
             const response = await fetch(GAS, opt);
             if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
             this.authorization = await response.json();
-            console.log(this.authorization);
         },
         async getSheet(year, monthIndex) {
             const opt = {
@@ -214,9 +330,7 @@ let vm = new Vue({
             const response = await fetch(GAS, opt);
             if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
             const result = await response.json();
-            console.log(result);
-
-            return result;
+            this.load = Array.isArray(result) ? result : [];
         },
         async postReports(postData) {
             const opt = {
@@ -235,38 +349,6 @@ let vm = new Vue({
 
             return result;
         },
-        async createCalender() {
-            const date = new Date(this.year, this.monthIndex);
-        
-            date.setDate(1); // 日付を月頭に設定
-            const first = date.getDay(); // 月頭の曜日を取得
-            date.setMonth(date.getMonth() + 1); // 翌月に設定
-            date.setDate(0); // 翌月の前の日（当月の末日）に日付を設定
-            const last = date.getDate(); // 月末の日付を取得
-        
-            this.load = await this.getSheet(this.year, this.monthIndex);
-            let count = 1;
-            const weeks = new Array(6);
-            for (let i = 0; i < weeks.length; i++) {
-                
-                const days = new Array(7);
-                for (let j = 0; j < days.length; j++) {
-                    days[j] = { day: undefined, visible: false };
-                    if ((i == 0 && j >= first) || (i > 0 && count <= last)) {
-                        const exist = this.load.some((item) => {
-                            const date = new Date(item.date);
-                            return date.getDate() == count;
-                        });
-                        days[j] = { day: count++, visible: exist };
-                    }
-                }
-
-                weeks[i] = days;
-            }
-            
-            this.selectClear();
-            this.days = weeks;
-        },
         onClickLogin(event) {
             this.login();
         },
@@ -276,7 +358,6 @@ let vm = new Vue({
                 this.year++;
                 this.monthIndex = 0;
             }
-            this.createCalender();
         },
         onClickBack(event) {
             // 月インデックスが 0 の場合、カーソルが年始のため昨年末に設定
@@ -284,23 +365,6 @@ let vm = new Vue({
                 this.year--;
                 this.monthIndex = 11;
             }
-            this.createCalender();
-        },
-        onClickCell(event) {
-            this.selectClear();
-        
-            const find = this.load.find((elem) => {
-                const date = new Date(elem.date);
-                const select = Number(event.currentTarget.id);
-                return date.getDate() == select;
-            })
-            if (find !== undefined) {
-                this.detail = new VolunteerReports(find.date, find.distribute, find.video, find.time, find.revisit, find.study);
-            } else {
-                this.detail = new VolunteerReports('0/0/0', 0, 0, 0, 0, 0);
-            }
-        
-            event.currentTarget.classList.add('select');
         },
         onClickAdd(event) {
             this.dialog = true;
@@ -311,28 +375,32 @@ let vm = new Vue({
         async onSendDialog(event, initialize) {
             this.dialog = false;
 
-            await this.postReports(event);
-            await this.createCalender();
+            if (this.authorization.login) {
+                await this.postReports(event);
+                await this.getSheet(this.year, this.monthIndex);
+            }
+            
             initialize();
         },
-        /**
-         * セルの選択状態を解除します。
-        */
-        selectClear() {
-            const old = document.querySelector('.select');
-            old?.classList.remove('select');
-            
-            this.detail = new VolunteerReports('0/0/0', 0, 0, 0, 0, 0);
+        showDetail(event) {
+            this.detail = event;
         }
     },
     watch: {
         authorization: {
             handler: function() {
-                if (this.authorization.login)
-                    this.createCalender();
-                console.log("authorization watch!");
+                if (this.authorization.login) {
+                    this.getSheet(this.year, this.monthIndex);
+                }
             }, 
             deep: true
+        },
+        monthIndex: {
+            handler: function() {
+                if (this.authorization.login) {
+                    this.getSheet(this.year, this.monthIndex);
+                }
+            }
         }
     }
 

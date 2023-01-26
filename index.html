@@ -26,30 +26,7 @@
                 <template id="template_calender">
                     <div class="row row-cols-1 mb-2">
                         <div class="col">
-                            <table class="calender">
-                                <thead>
-                                    <tr class="week">
-                                        <th class="wh">日</th>
-                                        <th class="wh">月</th>
-                                        <th class="wh">火</th>
-                                        <th class="wh">水</th>
-                                        <th class="wh">木</th>
-                                        <th class="wh">金</th>
-                                        <th class="wh">土</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="day" v-for="item in days">
-                                        <td class="cell" v-for="elem in item" v-bind:id="elem.day"
-                                            v-on:click="onClickCell">
-                                            <div>{{ elem.day }}</div>
-                                            <div v-bind:class="elem.visible ? 'visible' : 'invisible'">
-                                                <i class="bi bi-record-fill text-success"></i>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <my-calender v-bind:year="year" v-bind:monthindex="monthIndex" v-bind:regist="load" v-on:from-select="showDetail"></my-calender>
                         </div>
                     </div>
                 </template>
