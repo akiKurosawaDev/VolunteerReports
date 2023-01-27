@@ -266,8 +266,8 @@ const calender = {
                     const find = list.find(day => Number(day.day) == date.getDate());
                     find.visible = true;
                 }
-
-            }
+            },
+            deep: true
         }
     }
 };
@@ -345,9 +345,13 @@ let vm = new Vue({
             const response = await fetch(GAS, opt);
             if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
             const result = await response.json();
-            console.log(result);
-
-            return result;
+            
+            if (result.date != null) {
+                const date = new Date(result.date);
+                if (date.getFullYear() == this.year && date.getMonth() == this.monthIndex) {
+                    this.load.push(result);
+                }
+            }
         },
         onClickLogin(event) {
             this.login();
@@ -377,7 +381,7 @@ let vm = new Vue({
 
             if (this.authorization.login) {
                 await this.postReports(event);
-                await this.getSheet(this.year, this.monthIndex);
+                //await this.getSheet(this.year, this.monthIndex);
             }
             
             initialize();

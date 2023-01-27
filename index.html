@@ -19,17 +19,16 @@
                 <div class="row row-cols-3 mb-2">
                     <div class="col text-end month"><button type="button" class="btn btn-light"
                             v-on:click="onClickBack"><i class="bi bi-chevron-left"></i></button></div>
-                    <div class="month">{{ year }}年{{ monthIndex + 1 }}月</div>
+                    <div class="col month text-nowrap">{{ year }}年{{ monthIndex + 1 }}月</div>
                     <div class="col text-start month"><button type="button" class="btn btn-light"
                             v-on:click="onClickNext"><i class="bi bi-chevron-right"></i></button></div>
                 </div>
-                <template id="template_calender">
-                    <div class="row row-cols-1 mb-2">
-                        <div class="col">
-                            <my-calender v-bind:year="year" v-bind:monthindex="monthIndex" v-bind:regist="load" v-on:from-select="showDetail"></my-calender>
-                        </div>
+                <div class="row row-cols-1 mb-2">
+                    <div class="col">
+                        <my-calender v-bind:year="year" v-bind:monthindex="monthIndex" v-bind:regist="load"
+                            v-on:from-select="showDetail"></my-calender>
                     </div>
-                </template>
+                </div>
                 <template v-if="detail.date != '0/0/0'">
                     <div class="row row-cols-1 mb-2">
                         <div class="col detail">{{ detail.date }}</div>

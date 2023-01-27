@@ -14,10 +14,13 @@ main {
 }
 
 .month {
+    padding: 0;
     font-size: 20px;
     text-align: center;
     font-weight: bold;
 }
+
+/* vue 子コンポーネント my-calender 内で使用するスタイル calender */
 .calender {
     border-left: 1px black solid;
     border-top: 1px black solid;
@@ -25,15 +28,23 @@ main {
     max-width: 350px;
     margin: 0 auto;
 }
+
+/* vue 子コンポーネント my-calender 内で使用するスタイル week */
 .week {
     background-color: lightgrey;
 }
+
+/* vue 子コンポーネント my-calender 内で使用するスタイル week day 先頭 */
 .week :first-child, .day td:first-child {
     color: red;
 }
+
+/* vue 子コンポーネント my-calender 内で使用するスタイル week day 末尾 */
 .week :last-child, .day td:last-child {
     color: blue;
 }
+
+/* vue 子コンポーネント my-calender 内で使用するスタイル wh */
 .wh {
     width: 50px;
     height: 25px;
@@ -41,6 +52,8 @@ main {
     border-bottom: 1px black solid;
     cursor: pointer;
 }
+
+/* vue 子コンポーネント my-calender 内で使用するスタイル cell */
 .cell {
     color: black;
     width: 50px;
@@ -63,15 +76,18 @@ main {
     background-color: darkgray;
     font-weight: bold;
 }
+
+/* vue 子コンポーネント my-calender 内で使用するスタイル select */
+.select {
+    background-color: tomato;
+    font-weight: bold;
+}
+
 .reports {
     font-size: 14px;
     text-align: left;
     max-width: 350px;
     margin: 0 auto;
-}
-.select {
-    background-color: tomato;
-    font-weight: bold;
 }
 
 .modal {
