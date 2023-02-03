@@ -276,12 +276,14 @@ let vm = new Vue({
     el: '#app',
     data() {
         return {
-            authorization: new User('', '', false),
-            year: 0,
-            monthIndex: -1,
-            load: [],
-            detail: new VolunteerReports('0/0/0', 0, 0, 0, 0, 0),
-            dialog: false
+            authorization: new User('', '', false), // 認証情報
+            commands: [false, false, false], // コマンドリスト
+            detail: new VolunteerReports('0/0/0', 0, 0, 0, 0, 0), // 詳細情報
+            dialog: false, // ダイアログ表示可否
+            load: [], // GAS データリスト
+            monthIndex: -1, // 月インデックス（0から始まる）
+            year: 0, // 西暦年
+
         }
     },
     mounted() {
@@ -346,6 +348,7 @@ let vm = new Vue({
             if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
             const result = await response.json();
             
+            // GAS にデータ送信が成功した場合、load メンバーにもデータを追加（カレンダーに反映）
             if (result.date != null) {
                 const date = new Date(result.date);
                 if (date.getFullYear() == this.year && date.getMonth() == this.monthIndex) {
@@ -404,6 +407,11 @@ let vm = new Vue({
                 if (this.authorization.login) {
                     this.getSheet(this.year, this.monthIndex);
                 }
+            }
+        },
+        detail: {
+            handler: function() {
+                this.commands = this.detail.date == '0/0/0' ? [true, false, false] : [false, true, true];
             }
         }
     }

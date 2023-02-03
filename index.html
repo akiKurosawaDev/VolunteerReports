@@ -51,10 +51,10 @@
                 v-on:from-send="onSendDialog"></modal-dialog>
             <nav class="navbar fixed-bottom navbar-light bg-light">
                 <div class="container-fluid justify-content-center">
-                    <button type="button" class="btn btn-outline-primary mx-3" v-on:click="onClickAdd"><i
+                    <button type="button" class="btn btn-outline-primary mx-3" v-bind:disabled="!commands[0]" v-on:click="onClickAdd"><i
                             class="bi bi-plus-circle"></i> 新規</button>
-                    <button type="button" class="btn btn-outline-success mx-3"><i class="bi bi-pen"></i> 編集</button>
-                    <button type="button" class="btn btn-outline-danger mx-3"><i class="bi bi-x-circle"></i> 削除</button>
+                    <button type="button" class="btn btn-outline-success mx-3" v-bind:disabled="!commands[1]"><i class="bi bi-pen"></i> 編集</button>
+                    <button type="button" class="btn btn-outline-danger mx-3" v-bind:disabled="!commands[2]"><i class="bi bi-x-circle"></i> 削除</button>
                 </div>
             </nav>
         </template>
