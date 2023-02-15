@@ -21,6 +21,12 @@ class VolunteerReports {
 }
 
 class User {
+    /**
+     * User インスタンスコンストラクタ
+     * @param {string} id - ユーザーID
+     * @param {string} password - パスワード 
+     * @param {boolean} login - 認証可否
+     */
     constructor(id, password, login) {
         this.id = id;
         this.password = password;
@@ -37,7 +43,11 @@ window.onload = () => {}
  * Vue ローカルコンポーネントとして実装する modalDialog オブジェクトです。
  */
 const modalDialog = {
-    props: ['title', 'visible'],
+    props: {
+        title: String,
+        visible: Boolean,
+        default: { type: Object, default: function() { return new VolunteerReports('0/0/0', 0, 0, 0, 0, 0) } }
+    },
     data() {
         return {
             reports: new VolunteerReports('0/0/0', 0, 0, 0, 0, 0)
@@ -117,13 +127,18 @@ const modalDialog = {
         }
     },
     methods: {
-        /** reports オブジェクトを初期化します。 */
+        /** reports オブジェクトを default プロパティで初期化します。 */
         initialize() {
-            this.reports = new VolunteerReports(this.todayString, 0, 0, 0, 0, 0);
+            this.reports.date = this.default.date == '0/0/0' ? this.todayString : this.default.date;
+            this.reports.distribute = this.default.distribute;
+            this.reports.video = this.default.video;
+            this.reports.time = this.default.time;
+            this.reports.revisit = this.default.revisit;
+            this.reports.study = this.default.study;
         },
         /**
          * UTC書式文字列「20YY-MM-dd」を JST書式文字列「20YY/MM/dd」に変換します。
-         * @param {*} dateUTCString - 「20YY-MM-dd」UTC書式文字列。
+         * @param {String} dateUTCString - 「20YY-MM-dd」UTC書式文字列。
          * @returns 「20YY/MM/dd」JST書式文字列。
          */
         dateConvert(dateUTCString) {
@@ -132,7 +147,7 @@ const modalDialog = {
         },
         /**
          * 書式文字列「HH:mm」を分換算で時間数値に変換します。
-         * @param {*} timeString - 「HH:mm」書式文字列。
+         * @param {String} timeString - 「HH:mm」書式文字列。
          * @returns 分換算の時間数値。
          */
         timeConvert(timeString) {
@@ -144,11 +159,19 @@ const modalDialog = {
         },
         onClickClose(event) {
             this.$emit('from-close');
-            this.initialize();
+            //this.initialize();
         },
         onClickSend(event) {
             this.$emit('from-send', this.reports, () => this.initialize());
             //this.initialize();
+        }
+    },
+    watch: {
+        visible: {
+            handler: function(newVal, oldVal) {
+                if (newVal)
+                    this.initialize();
+            }
         }
     }
 };
@@ -266,6 +289,7 @@ const calender = {
                     const find = list.find(day => Number(day.day) == date.getDate());
                     find.visible = true;
                 }
+                this.selectClear();
             },
             deep: true
         }
@@ -279,7 +303,8 @@ let vm = new Vue({
             authorization: new User('', '', false), // 認証情報
             commands: [false, false, false], // コマンドリスト
             detail: new VolunteerReports('0/0/0', 0, 0, 0, 0, 0), // 詳細情報
-            dialog: false, // ダイアログ表示可否
+            add_dlg: false, // ダイアログ表示可否
+            edi_dlg: false,
             load: [], // GAS データリスト
             monthIndex: -1, // 月インデックス（0から始まる）
             year: 0, // 西暦年
@@ -350,11 +375,43 @@ let vm = new Vue({
             
             // GAS にデータ送信が成功した場合、load メンバーにもデータを追加（カレンダーに反映）
             if (result.date != null) {
-                const date = new Date(result.date);
-                if (date.getFullYear() == this.year && date.getMonth() == this.monthIndex) {
+                const current = new Date(result.date).getTime();
+                const index = this.load.findIndex(element => {
+                    const search =  new Date(element.date).getTime();
+                    return current == search;
+                });
+                if (index == -1)
                     this.load.push(result);
-                }
+                console.log(index + "番目のアイテムを置き換えました。");    
             }
+        },
+        async putReports(putData) {
+            const opt = {
+                method: 'POST',
+                body: JSON.stringify({
+                    user: this.authorization,
+                    method: 'PUT',
+                    editrecord: putData
+                })
+            };
+        
+            const response = await fetch(GAS, opt);
+            if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+            const result = await response.json();
+            
+            // GAS にデータ送信が成功した場合、load メンバーのデータも変更（カレンダーに反映）
+            if (result.date != null) {
+                const current = new Date(result.date).getTime();
+                const index = this.load.findIndex(element => {
+                    const search =  new Date(element.date).getTime();
+                    return current == search;
+                });
+                    
+                if (index > -1)
+                    this.load.splice(index, 1, result);
+                console.log(index + "番目のアイテムを置き換えました。");
+            }
+        
         },
         onClickLogin(event) {
             this.login();
@@ -373,18 +430,20 @@ let vm = new Vue({
                 this.monthIndex = 11;
             }
         },
-        onClickAdd(event) {
-            this.dialog = true;
-        },
-        onCloseDialog(event) {
-            this.dialog = false;
-        },
         async onSendDialog(event, initialize) {
-            this.dialog = false;
+            this.add_dlg = false;
 
             if (this.authorization.login) {
                 await this.postReports(event);
-                //await this.getSheet(this.year, this.monthIndex);
+            }
+            
+            initialize();
+        },
+        async onPutDialog(event, initialize) {
+            this.edi_dlg = false;
+
+            if (this.authorization.login) {
+                await this.putReports(event);
             }
             
             initialize();
