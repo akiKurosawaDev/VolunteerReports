@@ -51,14 +51,19 @@
                 v-on:from-send="onSendDialog"></modal-dialog>
             <modal-dialog title="編集" v-bind:visible="edi_dlg" v-bind:default="detail" v-on:from-close="edi_dlg = false"
                 v-on:from-send="onPutDialog"></modal-dialog>
+            <modal-message title="削除" message="報告を削除します。" v-bind:visible="del_dlg" v-on:from-close="del_dlg = false"
+                v-on:from-send="onDelDialog"></modal-message>
             <nav class="navbar fixed-bottom navbar-light bg-light">
                 <div class="container-fluid justify-content-center">
                     <button type="button" class="btn btn-outline-primary mx-3" v-bind:disabled="!commands[0]" v-on:click="add_dlg = true">
                         <i class="bi bi-plus-circle"></i> 新規
                     </button>
                     <button type="button" class="btn btn-outline-success mx-3" v-bind:disabled="!commands[1]" v-on:click="edi_dlg = true">
-                        <i class="bi bi-pen"></i> 編集</button>
-                    <button type="button" class="btn btn-outline-danger mx-3" v-bind:disabled="!commands[2]"><i class="bi bi-x-circle"></i> 削除</button>
+                        <i class="bi bi-pen"></i> 編集
+                    </button>
+                    <button type="button" class="btn btn-outline-danger mx-3" v-bind:disabled="!commands[2]" v-on:click="del_dlg = true">
+                        <i class="bi bi-x-circle"></i> 削除
+                    </button>
                 </div>
             </nav>
         </template>

@@ -39,6 +39,41 @@ class User {
  */
 window.onload = () => {}
 
+const modalMessage = {
+    props: {
+        title: String,
+        message: String,
+        visible: Boolean
+    },
+    template: `<transition name="fade">
+        <div v-show="visible" class="modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ title }}</h5>
+                        <button type="button" class="btn-close" v-on:click="onClickClose" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>{{ message }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" v-on:click="onClickClose">閉じる</button>
+                        <button type="button" class="btn btn-primary" v-on:click="onClickSend">送信</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </transition>`,
+    methods: {
+        onClickClose(event) {
+            this.$emit('from-close');
+        },
+        onClickSend(event) {
+            this.$emit('from-send');
+        }
+    }
+};
+
 /**
  * Vue ローカルコンポーネントとして実装する modalDialog オブジェクトです。
  */
@@ -280,10 +315,15 @@ const calender = {
                 this.createCalender();
             }
         },
-        regist: {
-            handler: function() {
+        'regist.length': {
+            handler: function(next, prev) {
                 const list = this.days.flat();
                 console.log(this.getRegist);
+                
+                // delete
+                if (next < prev) {
+                    list.forEach(day => day.visible = false);
+                }
                 for (const item of this.getRegist) {
                     const date = new Date(item.date);
                     const find = list.find(day => Number(day.day) == date.getDate());
@@ -305,6 +345,7 @@ let vm = new Vue({
             detail: new VolunteerReports('0/0/0', 0, 0, 0, 0, 0), // 詳細情報
             add_dlg: false, // ダイアログ表示可否
             edi_dlg: false,
+            del_dlg: false,
             load: [], // GAS データリスト
             monthIndex: -1, // 月インデックス（0から始まる）
             year: 0, // 西暦年
@@ -317,6 +358,7 @@ let vm = new Vue({
         this.monthIndex = now.getMonth();
     },
     components: {
+        'modal-message': modalMessage,
         'modal-dialog': modalDialog,
         'my-calender' : calender
     },
@@ -382,7 +424,7 @@ let vm = new Vue({
                 });
                 if (index == -1)
                     this.load.push(result);
-                console.log(index + "番目のアイテムを置き換えました。");    
+                console.log(index + "番目のアイテムを追加しました。");    
             }
         },
         async putReports(putData) {
@@ -412,6 +454,33 @@ let vm = new Vue({
                 console.log(index + "番目のアイテムを置き換えました。");
             }
         
+        },
+        async delRepots(delData) {
+            const opt = {
+                method: 'POST',
+                body: JSON.stringify({
+                    user: this.authorization,
+                    method: 'DELETE',
+                    delrecord: delData
+                })
+            };
+        
+            const response = await fetch(GAS, opt);
+            if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+            const result = await response.json();
+
+            // GAS にデータ送信が成功した場合、load メンバーのデータを削除（カレンダーに反映）
+            if (result.date != null) {
+                const current = new Date(result.date).getTime();
+                const index = this.load.findIndex(element => {
+                    const search = new Date(element.date).getTime();
+                    return current == search;
+                });
+
+                if (index > -1)
+                    this.load.splice(index, 1);
+                console.log(index + "番目のアイテムを削除しました。");
+            }
         },
         onClickLogin(event) {
             this.login();
@@ -447,6 +516,13 @@ let vm = new Vue({
             }
             
             initialize();
+        },
+        async onDelDialog() {
+            this.del_dlg = false;
+
+            if (this.authorization.login && this.detail != '0/0/0') {
+                await this.delRepots(this.detail);
+            }
         },
         showDetail(event) {
             this.detail = event;
