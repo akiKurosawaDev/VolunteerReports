@@ -34,17 +34,13 @@ class User {
     }
 }
 
-/**
- * Window load イベント
- */
-window.onload = () => {}
-
 const modalMessage = {
     props: {
         title: String,
         message: String,
         visible: Boolean
     },
+    emits: ['from-close', 'from-send'],
     template: `<transition name="fade">
         <div v-show="visible" class="modal" tabindex="-1">
             <div class="modal-dialog">
@@ -83,6 +79,7 @@ const modalDialog = {
         visible: Boolean,
         default: { type: Object, default: function() { return new VolunteerReports('0/0/0', 0, 0, 0, 0, 0) } }
     },
+    emits: ['from-close', 'from-send'],
     data() {
         return {
             reports: new VolunteerReports('0/0/0', 0, 0, 0, 0, 0)
@@ -194,11 +191,9 @@ const modalDialog = {
         },
         onClickClose(event) {
             this.$emit('from-close');
-            //this.initialize();
         },
         onClickSend(event) {
             this.$emit('from-send', this.reports, () => this.initialize());
-            //this.initialize();
         }
     },
     watch: {
@@ -212,7 +207,12 @@ const modalDialog = {
 };
 
 const calender = {
-    props: ['year', 'monthindex', 'regist'],
+    props: {
+        year: { type: Number },
+        monthindex: { type: Number },
+        regist: { type: Array }
+    },
+    emits: ['from-select'],
     data() {
         return {
             days: []
@@ -315,13 +315,13 @@ const calender = {
                 this.createCalender();
             }
         },
-        'regist.length': {
-            handler: function(next, prev) {
+        regist: {
+            handler: function(newVal, oldVal) {
                 const list = this.days.flat();
-                console.log(this.getRegist);
-                
+                console.log(`prev=${oldVal.length} -> new=${newVal.length}`);
+
                 // delete
-                if (next < prev) {
+                if (newVal.length < oldVal.length) {
                     list.forEach(day => day.visible = false);
                 }
                 for (const item of this.getRegist) {
@@ -336,8 +336,7 @@ const calender = {
     }
 };
 
-let vm = new Vue({
-    el: '#app',
+const app = Vue.createApp({
     data() {
         return {
             authorization: new User('', '', false), // 認証情報
@@ -422,9 +421,12 @@ let vm = new Vue({
                     const search =  new Date(element.date).getTime();
                     return current == search;
                 });
-                if (index == -1)
-                    this.load.push(result);
-                console.log(index + "番目のアイテムを追加しました。");    
+                if (index == -1) {
+                    const newList = this.load.slice();
+                    newList.push(result);
+                    this.load = newList;
+                    console.log("配列末尾にアイテムを追加しました。");
+                }
             }
         },
         async putReports(putData) {
@@ -449,9 +451,12 @@ let vm = new Vue({
                     return current == search;
                 });
                     
-                if (index > -1)
-                    this.load.splice(index, 1, result);
-                console.log(index + "番目のアイテムを置き換えました。");
+                if (index > -1) {
+                    const newList = this.load.slice(); // copy
+                    newList.splice(index, 1, result);
+                    this.load = newList;
+                    console.log(index + "番目のアイテムを置き換えました。");
+                }
             }
         
         },
@@ -477,9 +482,12 @@ let vm = new Vue({
                     return current == search;
                 });
 
-                if (index > -1)
-                    this.load.splice(index, 1);
-                console.log(index + "番目のアイテムを削除しました。");
+                if (index > -1) {
+                    const newList = this.load.slice();
+                    newList.splice(index, 1);
+                    this.load = newList;
+                    console.log(index + "番目のアイテムを削除しました。");
+                }
             }
         },
         onClickLogin(event) {
@@ -551,5 +559,5 @@ let vm = new Vue({
         }
     }
 
-});
+}).mount('#app');
 
