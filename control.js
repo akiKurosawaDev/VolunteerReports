@@ -127,6 +127,13 @@ const modalDialog = {
                                     <input type="number" class="form-control" id="revisit_input" v-model.number="reports.revisit">
                                 </div>
                             </div>
+                            <div class="row m-2">
+                                <label for="study_input" class="col-3 col-form-label">研究</label>
+                                    <div class="col">
+                                    <input type="number" class="form-control" id="study_input" v-model.number="reports.study" aria-describedby="study_input_help">
+                                    <div id="study_input_help" class="form-text">研究は３回訪問後１件報告します</div>
+                                </div>
+                            </div>
                         </form>
                     </div>
                     <div class="modal-footer">
