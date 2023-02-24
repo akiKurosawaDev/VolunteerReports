@@ -1,9 +1,9 @@
-body {
+/* body {
     overflow-y: scroll;
-}
+} */
 
 main {
-    padding-bottom: 50px;
+    padding-bottom: 56px;
     box-sizing: border-box;
 }
 

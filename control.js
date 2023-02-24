@@ -34,6 +34,8 @@ class User {
     }
 }
 
+const vuetify = Vuetify.createVuetify();
+
 const modalMessage = {
     props: {
         title: String,
@@ -559,5 +561,6 @@ const app = Vue.createApp({
         }
     }
 
-}).mount('#app');
+});
 
+app.use(vuetify).mount('#app');
