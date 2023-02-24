@@ -79,8 +79,7 @@
                         <label for="password_input" class="form-label">パスワード</label>
                         <input type="password" class="form-control mb-3" id="password_input"
                             v-model.lazy="authorization.password">
-                        <button type="button" class="btn btn-lg btn-primary w-100 mt-3"
-                            v-on:click="onClickLogin">ログイン</button>
+                        <v-btn size="large" color="blue" block class="mt-6" v-on:click="onClickLogin">ログイン</v-btn>
                     </form>
                 </div>
             </template>
