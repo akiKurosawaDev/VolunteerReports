@@ -215,6 +215,75 @@ const modalDialog = {
     }
 };
 
+const modalReports = {
+    props: {
+        title: String,
+        visible: Boolean,
+        regist: Array
+    },
+    emits: ['from-close'],
+    template: `<transition name="fade">
+        <div v-show="visible" class="modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ title }}</h5>
+                        <button type="button" class="btn-close" v-on:click="onClickClose" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row row-cols-2 mb-2 reports border">
+                            <div class="col py-1 label">配布数</div>
+                            <div class="col py-1 border-bottom">{{ totalReports.distribute }}</div>
+                            <div class="col py-1 label">ビデオ再生</div>
+                            <div class="col py-1 border-bottom">{{ totalReports.video }}</div>
+                            <div class="col py-1 label">時間</div>
+                            <div class="col py-1 border-bottom">{{ timeString }}</div>
+                            <div class="col py-1 label">再訪問</div>
+                            <div class="col py-1 border-bottom">{{ totalReports.revisit }}</div>
+                            <div class="col py-1 label">研究</div>
+                            <div class="col py-1">{{ totalReports.study }}</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" v-on:click="onClickClose">閉じる</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </transition>`,
+    computed: {
+        totalReports() {
+            const reports = {
+                distribute: 0,
+                video: 0,
+                time: 0,
+                revisit: 0,
+                study: 0
+            };
+
+            for (const element of this.regist) {
+                reports.distribute += element.distribute;
+                reports.video += element.video;
+                reports.time += element.time;
+                reports.revisit += element.revisit;
+                reports.study += element.study;
+            }
+            
+            return reports;
+        },
+        timeString() {
+            const hour = ('00' + String(Math.floor(Number(this.totalReports.time) / 60))).slice(-2);
+            const minute = ('00' + String(Number(this.totalReports.time) % 60)).slice(-2);
+            return `${hour}:${minute}`;
+        }
+    },
+    methods: {
+        onClickClose(event) {
+            this.$emit('from-close');
+        }
+    }
+};
+
 const calender = {
     props: {
         year: { type: Number },
@@ -354,6 +423,7 @@ const app = Vue.createApp({
             add_dlg: false, // ダイアログ表示可否
             edi_dlg: false,
             del_dlg: false,
+            cal_dlg: false,
             load: [], // GAS データリスト
             monthIndex: -1, // 月インデックス（0から始まる）
             year: 0, // 西暦年
@@ -368,6 +438,7 @@ const app = Vue.createApp({
     components: {
         'modal-message': modalMessage,
         'modal-dialog': modalDialog,
+        'modal-reports' : modalReports,
         'my-calender' : calender
     },
     computed: {

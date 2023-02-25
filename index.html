@@ -45,7 +45,7 @@
                             <div class="col py-1 label">再訪問</div>
                             <div class="col py-1 border-bottom">{{ detail.revisit }}</div>
                             <div class="col py-1 label">研究</div>
-                            <div class="col">{{ detail.study }}</div>
+                            <div class="col py-1">{{ detail.study }}</div>
                         </div>
                     </template>
                 </div>
@@ -55,6 +55,7 @@
                     v-on:from-send="onPutDialog"></modal-dialog>
                 <modal-message title="削除" message="報告を削除します。" v-bind:visible="del_dlg" v-on:from-close="del_dlg = false"
                     v-on:from-send="onDelDialog"></modal-message>
+                <modal-reports title="奉仕報告" v-bind:visible="cal_dlg" v-bind:regist="load" v-on:from-close="cal_dlg = false"></modal-reports>
                 <v-bottom-navigation>
                     <v-btn value="add" v-bind:disabled="!commands[0]" v-on:click="add_dlg = true">
                         <v-icon>mdi-plus-circle</v-icon>
@@ -67,6 +68,10 @@
                     <v-btn value="delete" v-bind:disabled="!commands[2]" v-on:click="del_dlg = true">
                         <v-icon>mdi-close-circle-outline</v-icon>
                         削除
+                    </v-btn>
+                    <v-btn value="calc" v-bind:disabled="false" v-on:click="cal_dlg = true">
+                        <v-icon>mdi-calculator-variant</v-icon>
+                        報告
                     </v-btn>
                 </v-bottom-navigation>
             </template>
